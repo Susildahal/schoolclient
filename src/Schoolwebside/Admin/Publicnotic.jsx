@@ -33,6 +33,7 @@ const Publicnotic = () => {
       const formData = new FormData();
       formData.append('message', values.message);
       formData.append('photo', values.photo);
+      formData.append('title', values.title);
 
       try {
         const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}

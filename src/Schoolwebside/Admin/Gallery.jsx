@@ -9,9 +9,10 @@ import {
   CloudArrowUpIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
-
+import { ToastContainer } from 'react-bootstrap';
 
 import axiosInstance from '../../Schoolwebside/config/Axiosconfig.js';
+
 
 const imageValidationSchema = Yup.object().shape({
   title: Yup.string()
@@ -42,22 +43,32 @@ const AdminImageCRUD = () => {
     image: null
   };
 
-  // Fetch images
-  const fetchImages = async () => {
+  // Selected filter state
+  const [selectedFilter, setSelectedFilter] = useState('All');
+
+  // Available filter options
+  const filterOptions = ['All', 'Sports', 'Events', 'Campus', 'Students', 'Teachers'];
+
+  // Fetch images with filter
+  const fetchImages = async (filter = selectedFilter) => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/gallery');
+      const requestBody = {
+        title: filter === 'All' ? '' : filter
+      };
+      const response = await axiosInstance.post('/gallery/filter', requestBody);
       setImages(response.data.data);
-
-      // Mock data - remove when using real API
-      setTimeout(() => {
-   
-        setLoading(false);
-      }, 1000);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching images:', error);
       setLoading(false);
     }
+  };
+
+  // Handle filter change
+  const handleFilterChange = (filter) => {
+    setSelectedFilter(filter);
+    fetchImages(filter);
   };
 
   // Handle form submission
@@ -66,13 +77,10 @@ const AdminImageCRUD = () => {
       const uploadData = new FormData();
       uploadData.append('title', values.title);
       uploadData.append('image', values.image);
+      const limit = 1;
 
-      const response = await axiosInstance.post('/gallery', uploadData);
+      const response = await axiosInstance.post('/gallery?limit=1', uploadData);
       setImages(prev => [...prev, response.data.data]);
-      
-    
-    
-     
       
       // Reset form and close dialog
       resetForm();
@@ -151,14 +159,35 @@ const AdminImageCRUD = () => {
           <h2 className="text-lg font-semibold text-gray-900">Image Management</h2>
           <p className="text-xs text-gray-500 mt-1">Add and manage images with validation</p>
         </div>
-        
-        <button
+           <button
           onClick={() => setIsDialogOpen(true)}
           className="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
         >
           <PlusIcon className="w-4 h-4" />
           <span>Add Image</span>
         </button>
+      </div>
+
+      {/* Filter Navigation Bar */}
+      <div className="flex flex-wrap gap-2 bg-gray-100 p-3 rounded-lg">
+        {filterOptions.map((filter) => (
+          <button
+            key={filter}
+            onClick={() => handleFilterChange(filter)}
+            className={`px-4 py-2 rounded-md transition-colors text-xs ${
+              selectedFilter === filter
+                ? 'bg-blue-500 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between">
+        
+     
       </div>
 
       {/* Images Table */}
@@ -268,16 +297,22 @@ const AdminImageCRUD = () => {
                       <label className="block text-xs font-medium text-gray-700 mb-2">
                         Image Title *
                       </label>
+
                       <Field
+                        as="select"
                         name="title"
-                        type="text"
-                        placeholder="Enter image title..."
                         className={`w-full px-3 py-2 border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.title && touched.title 
-                            ? 'border-red-300 focus:ring-red-500' 
-                            : 'border-gray-300'
+                          errors.title && touched.title ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
                         }`}
-                      />
+                      >
+                        <option value="">Select title...</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Events">Events</option>
+                        <option value="Campus">Campus</option>
+                        <option value="Students">Students</option>
+                        <option value="Teachers">Teachers</option>
+                      </Field>
+
                       <ErrorMessage name="title">
                         {msg => (
                           <div className="flex items-center mt-1 text-xs text-red-600">
@@ -287,8 +322,6 @@ const AdminImageCRUD = () => {
                         )}
                       </ErrorMessage>
                     </div>
-
-                    {/* Image Upload Field */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-2">
                         Select Image *
@@ -367,6 +400,8 @@ const AdminImageCRUD = () => {
           </div>
         </>
       )}
+
+      <ToastContainer />
     </div>
   );
 };

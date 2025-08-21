@@ -44,7 +44,8 @@ const Achievement = () => {
       const formdata = new FormData();
       formdata.append("message", values.message);
       formdata.append("photo", values.photo);
-      
+      formdata.append("title", values.title);
+
       // Debug FormData contents
       for (let [key, value] of formdata.entries()) {
         console.log(`${key}:`, value);
