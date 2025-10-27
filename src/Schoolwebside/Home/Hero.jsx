@@ -1,62 +1,73 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, Users, BookOpen, Award, MapPin, Play, ArrowDown, Star, Calendar, Clock } from 'lucide-react';
+import { BookOpen, Zap, Users } from 'lucide-react';
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
 
   const heroSlides = [
     {
-      image: "/api/placeholder/1920/1080",
-      title: "Excellence in Education",
-      subtitle: "Shaping Tomorrow's Leaders",
-      description: "Providing quality education from Primary to Technical Secondary level with modern facilities and experienced faculty.",
-      highlight: "CBSE Affiliated"
+      title: "Fly your way",
+      titleBold: "to education",
+      description: "Providing quality education from Primary to Technical Secondary level with modern facilities and experienced faculty members.",
+      buttonText: "Get Started",
+      gradient: "from-purple-600 to-purple-700",
+      accentColor: "from-orange-400 to-orange-500",
+      icon: BookOpen,
+      iconColor: "text-orange-400"
     },
     {
-      image: "/api/placeholder/1920/1080",
-      title: "Technical Education",
-      subtitle: "Building Future Engineers",
+      title: "Build your",
+      titleBold: "future here",
       description: "State-of-the-art technical programs preparing students for the modern engineering world.",
-      highlight: "Modern Labs"
+      buttonText: "Explore Now",
+      gradient: "from-blue-600 to-blue-700",
+      accentColor: "from-cyan-400 to-cyan-500",
+      icon: Zap,
+      iconColor: "text-cyan-400"
     },
     {
-      image: "/api/placeholder/1920/1080",
-      title: "Holistic Development",
-      subtitle: "Beyond Academic Excellence",
+      title: "Learn and",
+      titleBold: "grow together",
       description: "Fostering creativity, leadership, and character development through comprehensive education programs.",
-      highlight: "15+ Years Experience"
+      buttonText: "Join Us",
+      gradient: "from-indigo-600 to-indigo-700",
+      accentColor: "from-pink-400 to-pink-500",
+      icon: Users,
+      iconColor: "text-pink-400"
     }
   ];
 
-  const stats = [
-    { icon: Users, number: "500+", label: "Students" },
-    { icon: BookOpen, number: "25+", label: "Expert Teachers" },
-    { icon: Award, number: "15+", label: "Years of Excellence" },
-  ];
-
-  const features = [
-    { icon: Star, text: "Top Rated School" },
-    { icon: Calendar, text: "Admission Open" },
-    { icon: Clock, text: "Flexible Timings" }
-  ];
-
-  // Auto-slide functionality
   useEffect(() => {
+    if (!isAutoPlay) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
     return () => clearInterval(timer);
+  }, [isAutoPlay]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const { clientX, clientY } = e;
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const moveX = (clientX - centerX) * 0.02;
+      const moveY = (clientY - centerY) * 0.02;
+      setMousePosition({ x: moveX, y: moveY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        duration: 0.8,
-        staggerChildren: 0.1
-      }
+      transition: { duration: 0.8, staggerChildren: 0.1 }
     }
   };
 
@@ -65,263 +76,244 @@ const HeroSection = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
+      transition: { duration: 0.7, ease: "easeOut" }
     }
   };
 
-  const floatingVariants = {
-    animate: {
-      y: [-10, 10, -10],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
+  const slideVariants = {
+    enter: { opacity: 0, x: -50 },
+    center: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 50 }
   };
+
+  const CurrentIcon = heroSlides[currentSlide].icon;
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-hidden mt-16">
-      {/* Background Elements */}
-      <div className="absolute inset-0">
-        {/* Geometric shapes */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-          className="absolute top-20 right-20 w-32 h-32 border-2 border-blue-200/30 rounded-full"
-        />
-        <motion.div
-          animate={{ rotate: -360 }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-32 left-16 w-24 h-24 border-2 border-indigo-200/40 rounded-full"
-        />
-        <motion.div
-          variants={floatingVariants}
-          animate="animate"
-          className="absolute top-1/3 right-1/4 w-16 h-16 bg-blue-100/50 rounded-lg transform rotate-45"
-        />
-        <motion.div
-          variants={floatingVariants}
-          animate="animate"
-          style={{ animationDelay: "1.5s" }}
-          className="absolute bottom-1/3 left-1/4 w-12 h-12 bg-indigo-100/50 rounded-full"
-        />
-      </div>
-
-      {/* Main Content */}
+    <div className="relative min-h-screen bg-white overflow-hidden pt-0">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16"
+        className="relative"
       >
-        <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[calc(100vh-8rem)]">
+        <div className={`relative h-screen bg-gradient-to-br ${heroSlides[currentSlide].gradient} overflow-hidden flex items-center transition-all duration-500`}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+        >
           
-          {/* Left Content */}
-          <div className="space-y-8">
-            {/* Location Badge */}
-            <motion.div variants={itemVariants} className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
-              <MapPin className="w-4 h-4" />
-              <span>Mahankal-4, Kaleshowar, Lalitpur</span>
-            </motion.div>
+          {/* Background Beams */}
+          <svg className="absolute inset-0 w-full h-full opacity-30" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="beam1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.5)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+              </linearGradient>
+              <linearGradient id="beam2" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+              </linearGradient>
+              <linearGradient id="beam3" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.3)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+              </linearGradient>
+            </defs>
+            <motion.line x1="0" y1="0" x2="1440" y2="900" stroke="url(#beam1)" strokeWidth="2" animate={{ opacity: [0.2, 0.6, 0.2] }} transition={{ duration: 4, repeat: Infinity }} />
+            <motion.line x1="1440" y1="0" x2="0" y2="900" stroke="url(#beam2)" strokeWidth="2" animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 5, repeat: Infinity, delay: 0.5 }} />
+            <motion.line x1="720" y1="0" x2="720" y2="900" stroke="url(#beam3)" strokeWidth="3" animate={{ opacity: [0.15, 0.4, 0.15] }} transition={{ duration: 6, repeat: Infinity, delay: 1 }} />
+            <motion.line x1="200" y1="0" x2="1000" y2="900" stroke="url(#beam1)" strokeWidth="2" animate={{ opacity: [0.1, 0.4, 0.1] }} transition={{ duration: 5.5, repeat: Infinity, delay: 0.3 }} />
+            <motion.line x1="1200" y1="0" x2="400" y2="900" stroke="url(#beam2)" strokeWidth="2" animate={{ opacity: [0.15, 0.45, 0.15] }} transition={{ duration: 6.5, repeat: Infinity, delay: 0.8 }} />
+          </svg>
 
-            {/* Main Headlines */}
-            <motion.div variants={itemVariants} className="space-y-6">
-              <motion.div 
-                key={currentSlide}
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8 }}
-                className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-1 rounded-full text-sm font-semibold"
-              >
-                {heroSlides[currentSlide].highlight}
-              </motion.div>
-              
-              <motion.h1 
-                key={`title-${currentSlide}`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight"
-              >
-                <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  {heroSlides[currentSlide].title}
-                </span>
-              </motion.h1>
-              
-              <motion.h2
-                key={`subtitle-${currentSlide}`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-2xl sm:text-3xl text-gray-600 font-medium"
-              >
-                {heroSlides[currentSlide].subtitle}
-              </motion.h2>
-              
-              <motion.p
-                key={`desc-${currentSlide}`}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-lg text-gray-600 leading-relaxed max-w-xl"
-              >
-                {heroSlides[currentSlide].description}
-              </motion.p>
-            </motion.div>
+          {/* Background Elements - Clouds */}
+          <motion.div 
+            animate={{ x: [0, 20, 0], y: [0, 10, 0] }}
+            transition={{ duration: 8, repeat: Infinity }}
+            style={{ x: mousePosition.x * 0.5, y: mousePosition.y * 0.5 }}
+            className="absolute top-20 left-1/4 w-24 h-12 bg-white rounded-full opacity-20 blur-md"
+          />
+          <motion.div 
+            animate={{ x: [0, -15, 0], y: [0, -8, 0] }}
+            transition={{ duration: 10, repeat: Infinity }}
+            style={{ x: mousePosition.x * 0.3, y: mousePosition.y * 0.3 }}
+            className="absolute top-1/3 right-1/4 w-32 h-16 bg-white rounded-full opacity-15 blur-md"
+          />
+          <motion.div 
+            animate={{ x: [0, 25, 0], y: [0, 15, 0] }}
+            transition={{ duration: 12, repeat: Infinity }}
+            style={{ x: mousePosition.x * 0.4, y: mousePosition.y * 0.4 }}
+            className="absolute bottom-1/3 left-1/3 w-20 h-10 bg-white rounded-full opacity-10 blur-md"
+          />
 
-            {/* Action Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-              >
-                Explore Our Programs
-                <ChevronRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-              
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="group flex items-center justify-center border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 text-gray-700 hover:text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300"
-              >
-                <Play className="w-5 h-5 mr-2" />
-                Watch Video Tour
-              </motion.button>
-            </motion.div>
-
-            {/* Features */}
-            <motion.div variants={itemVariants} className="flex flex-wrap gap-6">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-md border border-gray-200"
-                >
-                  <feature.icon className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium text-gray-700">{feature.text}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div variants={itemVariants} className="grid grid-cols-3 gap-8 pt-8">
-              {stats.map((stat, index) => (
+          {/* Content Grid */}
+          <div className="w-full h-full flex items-center">
+            <div className="max-w-7xl mx-auto w-full px-0">
+              <div className="grid lg:grid-cols-2 gap-0 items-center h-full">
+                
+                {/* Left Side - Text Content */}
                 <motion.div 
-                  key={index} 
-                  whileHover={{ scale: 1.05 }}
-                  className="text-center bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200"
+                  variants={itemVariants}
+                  className="px-8 sm:px-12 lg:px-16 py-16 lg:py-0 flex flex-col justify-center"
+                  style={{ x: mousePosition.x * 0.3 }}
                 >
-                  <stat.icon className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                  <div className="text-3xl font-bold text-gray-900">{stat.number}</div>
-                  <div className="text-sm text-gray-600 mt-1">{stat.label}</div>
+                  <motion.div
+                    key={`content-${currentSlide}`}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.6 }}
+                    className="space-y-8"
+                  >
+                    <div>
+                      <motion.p 
+                        className="text-white/80 text-lg sm:text-xl font-light tracking-wide"
+                      >
+                        {heroSlides[currentSlide].title}
+                      </motion.p>
+                      <motion.h1 
+                        className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-tight mt-2"
+                      >
+                        {heroSlides[currentSlide].titleBold}
+                      </motion.h1>
+                    </div>
+
+                    <motion.p 
+                      className="text-white/90 text-base sm:text-lg leading-relaxed max-w-md font-light"
+                    >
+                      {heroSlides[currentSlide].description}
+                    </motion.p>
+
+                    <motion.button
+                      whileHover={{ scale: 1.08, boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}
+                      whileTap={{ scale: 0.95 }}
+                      onMouseEnter={() => setIsAutoPlay(false)}
+                      onMouseLeave={() => setIsAutoPlay(true)}
+                      className={`inline-block px-8 py-4 rounded-full font-bold text-white bg-gradient-to-r ${heroSlides[currentSlide].accentColor} shadow-xl hover:shadow-2xl transition-all duration-300 text-base sm:text-lg cursor-pointer`}
+                    >
+                      {heroSlides[currentSlide].buttonText}
+                    </motion.button>
+                  </motion.div>
                 </motion.div>
-              ))}
-            </motion.div>
+
+                {/* Right Side - Icon Illustration */}
+                <motion.div 
+                  variants={itemVariants}
+                  className="relative h-full hidden lg:flex items-center justify-center"
+                  style={{ x: mousePosition.x * 0.5, y: mousePosition.y * 0.5 }}
+                >
+                  <motion.div
+                    key={`illustration-${currentSlide}`}
+                    initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                    transition={{ duration: 0.6 }}
+                    className="relative w-full h-full flex items-center justify-center"
+                  >
+                    {/* Glowing Background Circle */}
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className="absolute w-64 h-64 bg-white/10 rounded-full blur-3xl"
+                    />
+
+                    {/* Icon Container */}
+                    <motion.div
+                      animate={{ y: [-15, 15, -15] }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      className="relative z-10"
+                    >
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 w-48 h-48 border border-white/10 rounded-full"
+                      />
+                      <motion.div
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-4 w-40 h-40 border border-white/5 rounded-full"
+                      />
+                      
+                      <div className={`relative w-48 h-48 rounded-full bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm flex items-center justify-center shadow-2xl border border-white/30`}>
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 2.5, repeat: Infinity }}
+                        >
+                          <CurrentIcon size={120} className={`${heroSlides[currentSlide].iconColor} drop-shadow-lg`} strokeWidth={1.5} />
+                        </motion.div>
+                      </div>
+                    </motion.div>
+
+                    {/* Floating Particles */}
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{
+                          x: [0, Math.cos(i * 60 * Math.PI / 180) * 80, 0],
+                          y: [0, Math.sin(i * 60 * Math.PI / 180) * 80, 0],
+                          opacity: [0, 0.6, 0]
+                        }}
+                        transition={{
+                          duration: 3 + i * 0.3,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                        className="absolute w-2 h-2 bg-white rounded-full"
+                      />
+                    ))}
+                  </motion.div>
+                </motion.div>
+              </div>
+            </div>
           </div>
 
-          {/* Right Content - School Info Card */}
-          <motion.div variants={itemVariants} className="lg:justify-self-end">
-            <motion.div 
-              whileHover={{ scale: 1.02 }}
-              className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 border border-gray-200 shadow-2xl max-w-md relative overflow-hidden"
-            >
-              {/* Background Pattern */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full -mr-16 -mt-16 opacity-50" />
-              
-              <div className="relative">
-                <div className="text-center mb-8">
-                  <motion.img
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    src="/image/logo.webp"
-                    alt="School Logo"
-                    className="w-24 h-24 mx-auto rounded-full border-4 border-blue-200 shadow-lg mb-4"
-                  />
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    Shree Bagh Bhairav Technical Secondary School
-                  </h3>
-                  <div className="flex items-center justify-center space-x-2 text-blue-600">
-                    <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                    <span className="text-sm font-medium">Est. 2008 • CBSE Affiliated</span>
-                    <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
-                  </div>
-                </div>
+          {/* Curved Bottom Shape */}
+          <div className="absolute bottom-0 left-0 right-0">
+            <svg viewBox="0 0 1440 200" preserveAspectRatio="none" className="w-full h-auto">
+              <path d="M0,50 Q360,0 720,50 T1440,50 L1440,200 L0,200 Z" fill="white" />
+            </svg>
+          </div>
 
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center text-gray-700 p-3 bg-blue-50 rounded-xl">
-                    <BookOpen className="w-5 h-5 mr-3 text-blue-600" />
-                    <span className="font-medium">Primary to Technical Secondary</span>
-                  </div>
-                  <div className="flex items-center text-gray-700 p-3 bg-indigo-50 rounded-xl">
-                    <Users className="w-5 h-5 mr-3 text-indigo-600" />
-                    <span className="font-medium">Expert Faculty & Modern Labs</span>
-                  </div>
-                  <div className="flex items-center text-gray-700 p-3 bg-purple-50 rounded-xl">
-                    <Award className="w-5 h-5 mr-3 text-purple-600" />
-                    <span className="font-medium">Excellence in Education</span>
-                  </div>
-                </div>
-
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg"
-                >
-                  Download Prospectus
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
+          {/* Mouse Glow Effect */}
+          {isHovering && (
+            <motion.div
+              animate={{
+                x: mousePosition.x * 2,
+                y: mousePosition.y * 2,
+              }}
+              transition={{ type: "spring", stiffness: 500, damping: 28 }}
+              className="pointer-events-none fixed w-40 h-40 rounded-full bg-white/5 blur-3xl"
+              style={{
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          )}
         </div>
       </motion.div>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="flex space-x-3">
+      <div className="relative z-20 -mt-20 flex justify-center pb-8">
+        <div className="flex space-x-3 bg-white px-6 py-4 rounded-full shadow-lg border border-gray-100">
           {heroSlides.map((_, index) => (
             <motion.button
               key={index}
-              onClick={() => setCurrentSlide(index)}
+              onClick={() => {
+                setCurrentSlide(index);
+                setIsAutoPlay(false);
+                setTimeout(() => setIsAutoPlay(true), 8000);
+              }}
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.9 }}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              className={`rounded-full transition-all duration-300 ${
                 currentSlide === index
-                  ? 'bg-blue-600 scale-125 shadow-lg'
-                  : 'bg-gray-400 hover:bg-blue-400'
+                  ? `w-8 h-3 bg-gradient-to-r ${heroSlides[index].gradient}`
+                  : 'w-3 h-3 bg-gray-300 hover:bg-gray-400'
               }`}
+              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 2 }}
-        className="absolute bottom-8 right-8 flex flex-col items-center text-gray-500"
-      >
-        <span className="text-sm mb-2 font-medium">Scroll Down</span>
-        <ArrowDown className="w-5 h-5" />
-      </motion.div>
-
-      {/* Image Slideshow (Hidden, for reference) */}
-      <div className="hidden">
-        {heroSlides.map((slide, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: currentSlide === index ? 0.1 : 0 }}
-            transition={{ duration: 1 }}
-            className="absolute inset-0 pointer-events-none"
-          >
-            <img
-              src={slide.image}
-              alt={`Background ${index + 1}`}
-              className="w-full h-full object-cover opacity-10"
-            />
-          </motion.div>
-        ))}
       </div>
     </div>
   );

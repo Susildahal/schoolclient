@@ -1,57 +1,52 @@
-import axios from "axios";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import React, { useState, useEffect, startTransition, useRef } from "react";
-import { useNavigate, NavLink, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Menu, X, ChevronDown } from "lucide-react";
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [hidden, setHidden] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [currentPath, setCurrentPath] = useState("");
   const navRef = useRef(null);
   const { scrollY } = useScroll();
-  const location = useLocation();
+  const lastScrollY = useRef(0);
+  const scrollTimeoutRef = useRef(null);
 
-  // Close menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
     setOpenDropdown(null);
-  }, [location.pathname]);
+    setCurrentPath(window.location.pathname);
+  }, []);
 
-  // Click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (navRef.current && !navRef.current.contains(event.target)) {
         setOpenDropdown(null);
-        setIsMenuOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Navbar hide/show on scroll
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious();
-    if (latest > 100 && latest > previous) setHidden(true);
-    else if (latest < previous) setHidden(false);
+    setIsScrolled(latest > 50);
+    setIsScrolling(true);
+    
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    
+    scrollTimeoutRef.current = setTimeout(() => {
+      setIsScrolling(false);
+    }, 800);
+    
+    lastScrollY.current = latest;
   });
 
-  const handleLogin = async () => {
-    try {
-      const flag = localStorage.getItem("flag");
-      console.log("Flag status:", flag);  
-
-      if (flag === "true") {
-        startTransition(() => navigate("/Adminoutlet/AdminHome"));
-      } else {
-        startTransition(() => navigate("/login"));
-      }
-    } catch (error) {
-      console.error("Error checking login status:", error);
-      startTransition(() => navigate("/login"));
-    }
+  const handleLogin = () => {
+    const flag = localStorage.getItem("flag");
+    window.location.href = flag === "true" ? "/Adminoutlet/AdminHome" : "/login";
   };
 
   const toggleDropdown = (dropdownName) => {
@@ -84,120 +79,111 @@ const Navbar = () => {
   ];
 
   return (
-    <motion.nav
-      ref={navRef}
-      animate={hidden ? "hidden" : "visible"}
-      variants={{
-        hidden: { y: "-100%", opacity: 0 },
-        visible: { y: 0, opacity: 1 },
-      }}
-      transition={{ duration: 0.3 }}
-      className="bg-white/95 backdrop-blur-md shadow-lg px-4 py-3 fixed top-0 left-0 right-0 z-50 border-b border-blue-200/50"
-    >
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between">
-          {/* Logo Section */}
+    <>
+      <motion.nav
+        ref={navRef}
+        animate={isMenuOpen ? { opacity: 0, pointerEvents: 'none' } : "visible"}
+        variants={{
+          visible: { y: 0, opacity: 1 },
+        }}
+        transition={{ duration: 0.4, ease: "easeInOut" }}
+        className={`fixed top-3 left-0 right-0 mx-auto z-50 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl sm:rounded-full transition-all duration-300 ${
+          isScrolled
+            ? "bg-white/80 backdrop-blur-xl shadow-lg border border-white/50"
+            : "bg-white/70 backdrop-blur-md shadow-md border border-white/40"
+        }`}
+        style={{
+          width: isScrolling ? "clamp(300px, 80%, 1000px)" : "clamp(300px, 95%, 1280px)",
+        }}
+      >
+        <div className="flex items-center justify-between w-full">
           <motion.div 
-            className="flex items-center space-x-3"
+            className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
             whileHover={{ scale: 1.02 }}
           >
-            <motion.img
-              src="/image/logo.webp"
-              alt="School Logo"
-              className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover ring-2 ring-blue-500/40 shadow-md"
+            <motion.div
+              className="h-9 w-9 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm lg:text-base shadow-md ring-2 ring-blue-300/30"
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ duration: 0.2 }}
-            />
-            <div className="hidden sm:block text-gray-800">
+            >
+              B
+            </motion.div>
+            <div className="hidden xs:block sm:block">
               <motion.h1 
-                className="text-sm lg:text-base xl:text-lg font-bold leading-tight text-gray-800"
+                className="text-xs sm:text-sm lg:text-base xl:text-lg font-bold text-gray-900 leading-tight"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.1 }}
               >
-                Shree Bagh Bhairav Technical Secondary School
+                Bagh Bhairav
               </motion.h1>
-              <p className="text-xs text-gray-600">Mahankal-4, Kaleshowar, Lalitpur</p>
+              <p className="text-xs text-gray-500 hidden lg:block">School of Excellence</p>
             </div>
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center gap-1">
             {navigationItems.map((item, index) => (
               <motion.div 
                 key={index} 
-                className="relative"
+                className="relative group"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.05 }}
               >
                 {item.to ? (
-                  <NavLink
-                    to={item.to}
-                    className={({ isActive }) =>
-                      `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-blue-50 hover:shadow-md hover:scale-105 ${
-                        isActive 
-                          ? "text-blue-600 bg-blue-100 shadow-inner ring-1 ring-blue-300/50" 
-                          : "text-gray-700 hover:text-blue-600"
-                      }`
-                    }
+                  <a
+                    href={item.to}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                      currentPath === item.to
+                        ? "text-blue-600 bg-blue-50/50 font-semibold"
+                        : "text-gray-700 hover:text-blue-600 hover:bg-blue-50/50"
+                    }`}
                   >
                     {item.text}
-                  </NavLink>
+                  </a>
                 ) : (
                   <>
                     <button
                       onClick={() => toggleDropdown(item.key)}
-                      className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:shadow-md transition-all duration-300 hover:scale-105"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-300"
                     >
                       {item.text}
-                      <motion.svg
-                        animate={{ rotate: openDropdown === item.key ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="ml-1 h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </motion.svg>
+                      <ChevronDown 
+                        size={16}
+                        className={`transition-transform duration-300 ${
+                          openDropdown === item.key ? 'rotate-180' : ''
+                        }`}
+                      />
                     </button>
                     
-                    {/* Desktop Dropdown */}
                     <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      initial={{ opacity: 0, y: -8, scale: 0.95 }}
                       animate={{
                         opacity: openDropdown === item.key ? 1 : 0,
-                        y: openDropdown === item.key ? 0 : -10,
-                        scale: openDropdown === item.key ? 1 : 0.95
+                        y: openDropdown === item.key ? 8 : -8,
+                        scale: openDropdown === item.key ? 1 : 0.95,
+                        pointerEvents: openDropdown === item.key ? 'auto' : 'none'
                       }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                      className={`absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 backdrop-blur-md ${
-                        openDropdown === item.key ? 'visible' : 'invisible'
-                      }`}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="absolute top-full left-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden"
                     >
                       <div className="py-3">
                         {item.subItems?.map((subItem, subIndex) => (
-                          <motion.div
+                          <motion.a
                             key={subIndex}
-                            initial={{ opacity: 0, x: -10 }}
+                            href={subItem.to}
+                            onClick={() => setOpenDropdown(null)}
+                            initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: subIndex * 0.05 }}
+                            className={`block px-4 py-2.5 text-sm transition-all duration-200 hover:pl-5 hover:translate-x-0.5 rounded ${
+                              currentPath === subItem.to
+                                ? "text-blue-600 bg-blue-50/60 font-semibold"
+                                : "text-gray-700 hover:text-blue-600 hover:bg-blue-50/60"
+                            }`}
                           >
-                            <NavLink
-                              to={subItem.to}
-                              onClick={() => setOpenDropdown(null)}
-                              className={({ isActive }) =>
-                                `block px-4 py-2 text-sm transition-all duration-200 hover:bg-blue-50 hover:pl-6 ${
-                                  isActive 
-                                    ? "text-blue-600 bg-blue-100 border-l-2 border-blue-500" 
-                                    : "text-gray-700 hover:text-blue-600"
-                                }`
-                              }
-                            >
-                              {subItem.text}
-                            </NavLink>
-                          </motion.div>
+                            {subItem.text}
+                          </motion.a>
                         ))}
                       </div>
                     </motion.div>
@@ -207,168 +193,146 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Login Button & Mobile Menu Toggle */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <motion.button
               onClick={handleLogin}
-              whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(59, 130, 246, 0.25)" }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-md transition-all duration-300"
+              className="hidden lg:flex px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
             >
               Login
             </motion.button>
 
-            {/* Mobile Menu Button */}
             <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="lg:hidden p-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-300"
+              className="lg:hidden p-2 text-gray-700 rounded-lg hover:bg-blue-50/50 hover:text-blue-600 transition-all duration-300"
             >
-              <motion.svg
+              <motion.div
                 animate={{ rotate: isMenuOpen ? 180 : 0 }}
                 transition={{ duration: 0.3 }}
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
               >
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </motion.svg>
+                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </motion.div>
             </motion.button>
           </div>
         </div>
+      </motion.nav>
 
-        {/* Mobile Menu */}
-        <motion.div
+      <motion.div
+        initial={false}
+        animate={{
+          opacity: isMenuOpen ? 1 : 0,
+          pointerEvents: isMenuOpen ? 'auto' : 'none'
+        }}
+        transition={{ duration: 0.3 }}
+        className="fixed inset-0 z-40 lg:hidden"
+        onClick={() => setIsMenuOpen(false)}
+      >
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+      </motion.div>
+
+      <motion.div
+        initial={{ x: "100%" }}
+        animate={{ x: isMenuOpen ? 0 : "100%" }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="fixed top-0 right-0 bottom-0 z-40 w-1/2 bg-white shadow-2xl lg:hidden overflow-y-auto"
+      >
+        <motion.div 
+          className="py-6 px-4 space-y-2"
           initial={false}
-          animate={{
-            height: isMenuOpen ? "auto" : 0,
-            opacity: isMenuOpen ? 1 : 0
-          }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="lg:hidden overflow-hidden"
+          animate={isMenuOpen ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.2, delay: isMenuOpen ? 0.1 : 0 }}
         >
-          <motion.div 
-            className="py-4 space-y-2 border-t border-gray-200 mt-3 bg-gray-50/50 rounded-lg"
-            initial={false}
-            animate={isMenuOpen ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 0.3, delay: isMenuOpen ? 0.1 : 0 }}
+          <motion.button
+            onClick={() => setIsMenuOpen(false)}
+            className="flex justify-end w-full p-2 mb-4"
           >
-            {navigationItems.map((item, index) => (
-              <motion.div 
-                key={index}
-                initial={false}
-                animate={isMenuOpen ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                transition={{ delay: isMenuOpen ? index * 0.1 : 0 }}
-              >
-                {item.to ? (
-                  <NavLink
-                    to={item.to}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:bg-blue-100 hover:pl-6 hover:shadow-md ${
-                        isActive 
-                          ? "text-blue-600 bg-blue-100 border-l-4 border-blue-500 shadow-inner" 
-                          : "text-gray-700 hover:text-blue-600"
-                      }`
-                    }
-                  >
-                    <span className="flex items-center">
-                      <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 opacity-60"></span>
-                      {item.text}
-                    </span>
-                  </NavLink>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => toggleDropdown(item.key)}
-                      className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 hover:bg-blue-100 hover:text-blue-600 rounded-xl transition-all duration-300 hover:shadow-md"
-                    >
-                      <span className="flex items-center">
-                        <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 opacity-60"></span>
-                        {item.text}
-                      </span>
-                      <motion.svg
-                        animate={{ rotate: openDropdown === item.key ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </motion.svg>
-                    </button>
-                    
-                    {/* Mobile Dropdown */}
-                    <motion.div
-                      initial={false}
-                      animate={{
-                        height: openDropdown === item.key ? "auto" : 0,
-                        opacity: openDropdown === item.key ? 1 : 0
-                      }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className="overflow-hidden bg-blue-50 rounded-lg ml-4 mr-2 mt-2 border border-blue-200"
-                    >
-                      <div className="py-2 space-y-1">
-                        {item.subItems?.map((subItem, subIndex) => (
-                          <motion.div
-                            key={subIndex}
-                            initial={false}
-                            animate={openDropdown === item.key ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-                            transition={{ delay: openDropdown === item.key ? subIndex * 0.05 : 0 }}
-                          >
-                            <NavLink
-                              to={subItem.to}
-                              onClick={() => {
-                                setIsMenuOpen(false);
-                                setOpenDropdown(null);
-                              }}
-                              className={({ isActive }) =>
-                                `block px-4 py-2 text-sm rounded-lg transition-all duration-300 hover:bg-blue-100 hover:pl-6 ${
-                                  isActive 
-                                    ? "text-blue-600 bg-blue-200 border-l-2 border-blue-500" 
-                                    : "text-gray-600 hover:text-blue-600"
-                                }`
-                              }
-                            >
-                              <span className="flex items-center">
-                                <span className="w-1.5 h-1.5 bg-blue-300 rounded-full mr-3 opacity-70"></span>
-                                {subItem.text}
-                              </span>
-                            </NavLink>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </motion.div>
-            ))}
-            
-            {/* Mobile School Info */}
+            <X size={24} className="text-gray-700" />
+          </motion.button>
+
+          {navigationItems.map((item, index) => (
             <motion.div 
-              className="sm:hidden mt-6 pt-4 border-t border-gray-200"
+              key={index}
               initial={false}
-              animate={isMenuOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-              transition={{ delay: 0.3 }}
+              animate={isMenuOpen ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+              transition={{ delay: isMenuOpen ? index * 0.06 : 0 }}
             >
-              <div className="px-4 py-2 text-center">
-                <h2 className="text-sm font-semibold text-gray-800 leading-tight">
-                  Shree Bagh Bhairav Technical Secondary School
-                </h2>
-                <p className="text-xs text-gray-600 mt-1">Mahankal-4, Kaleshowar, Lalitpur</p>
-              </div>
+              {item.to ? (
+                <a
+                  href={item.to}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 ${
+                    currentPath === item.to
+                      ? "text-blue-600 bg-blue-100/50 font-semibold"
+                      : "text-gray-700 hover:text-blue-600 hover:bg-blue-100/50"
+                  }`}
+                >
+                  {item.text}
+                </a>
+              ) : (
+                <>
+                  <button
+                    onClick={() => toggleDropdown(item.key)}
+                    className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-gray-700 hover:bg-blue-100/50 hover:text-blue-600 rounded-lg transition-all duration-300"
+                  >
+                    <span>{item.text}</span>
+                    <ChevronDown 
+                      size={18}
+                      className={`transition-transform duration-300 ${
+                        openDropdown === item.key ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+                  
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      height: openDropdown === item.key ? "auto" : 0,
+                      opacity: openDropdown === item.key ? 1 : 0
+                    }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden bg-blue-100/30 rounded-lg ml-4 mr-1 mt-1 border border-blue-200/30"
+                  >
+                    <div className="py-2 space-y-1">
+                      {item.subItems?.map((subItem, subIndex) => (
+                        <motion.a
+                          key={subIndex}
+                          href={subItem.to}
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            setOpenDropdown(null);
+                          }}
+                          initial={false}
+                          animate={openDropdown === item.key ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                          transition={{ delay: openDropdown === item.key ? subIndex * 0.05 : 0 }}
+                          className="block px-4 py-2.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-200/50 rounded-lg transition-all duration-300"
+                        >
+                          {subItem.text}
+                        </motion.a>
+                      ))}
+                    </div>
+                  </motion.div>
+                </>
+              )}
             </motion.div>
-          </motion.div>
+          ))}
+
+          <motion.button
+            onClick={() => {
+              handleLogin();
+              setIsMenuOpen(false);
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full px-4 py-3.5 mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-base font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+          >
+            Login
+          </motion.button>
         </motion.div>
-      </div>
-    </motion.nav>
+      </motion.div>
+    </>
   );
 };
 

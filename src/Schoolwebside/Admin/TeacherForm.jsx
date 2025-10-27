@@ -285,7 +285,7 @@ const TeacherCard = ({ teacher, onEdit, onDelete }) => {
               />
             ) : (
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xl">
-                {teacher.name.charAt(0)}
+                {teacher.name ? teacher.name.charAt(0) : '?'}
               </div>
             )}
             <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
@@ -554,7 +554,7 @@ const TeacherManagement = () => {
                                     <img className="h-10 w-10 rounded-full object-cover" src={teacher.photo} alt={teacher.name} />
                                   ) : (
                                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
-                                      {teacher.name.charAt(0)}
+                                      {teacher.name ? teacher.name.charAt(0) : '?'}
                                     </div>
                                   )}
                                 </div>

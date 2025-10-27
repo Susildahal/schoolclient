@@ -14,7 +14,7 @@ import DisplayAchievements from './DisplayAchievements'
 import Publicnotic from './Publicnotic'
 import Popup from './Popup'
 import SchoolTestimonialCarousel from "./SchoolTestimonialCarousel"
-
+import TeacherCards from '../Admin/TeacherCards'
 
 
 
@@ -38,7 +38,7 @@ const Home = () => {
             <SchoolTestimonialCarousel/>
           <Gallery/>
           <Ourservice/>
-        
+          <TeacherCards/>
           </div>
         </main>
     </div>
