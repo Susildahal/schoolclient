@@ -125,7 +125,7 @@ const Login = () => {
                 Remember me
               </label>
             </div>
-            <Link to="/ForgotPassword" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+            <Link to="/CheckEmail" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
               Forgot password?
             </Link>
           </div>
