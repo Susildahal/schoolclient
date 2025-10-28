@@ -51,7 +51,7 @@ export default function AcademicPrograms() {
   const duplicatedPrograms = [...programs, ...programs, ...programs];
 
   return (
-    <div className="w-full min-h-screen bg-white flex items-center justify-center py-16 overflow-hidden">
+    <div className="w-full min-h-screen  bg-white flex items-center justify-center py- overflow-hidden">
       <div className="w-full">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
