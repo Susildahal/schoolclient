@@ -5,6 +5,8 @@ import teacherSlice from "./slicer/teacherSlice.js";
 import roleSlice from "./slicer/role.js";
 import meeSlice from "./slicer/mee.js";
 import testimonialSlice from "./slicer/testominal.js";
+import schoolReducer  from './slicer/setting.js'
+import mvvReducer from './slicer/missionVisionValues.js'
 
 
  const store = configureStore({
@@ -14,7 +16,9 @@ import testimonialSlice from "./slicer/testominal.js";
         teacher:teacherSlice,
         role: roleSlice,
         mee: meeSlice,
-        testimonial: testimonialSlice
+        testimonial: testimonialSlice,
+        setting:schoolReducer,
+        mvv: mvvReducer
     }
 });
 

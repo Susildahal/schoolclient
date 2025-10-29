@@ -3,26 +3,17 @@ import React, { useState, useRef, useEffect, useMemo, startTransition } from 're
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {getdata,logoutMee} from "../redux/slicer/mee.js";
-
+import { fetchSchoolSettings } from '../redux/slicer/setting';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   HomeIcon,
   UserIcon,
-  ShoppingCartIcon,
-  CubeIcon,
-  UserGroupIcon,
   Bars3Icon,
   XMarkIcon,
-  TagIcon,
-  BuildingStorefrontIcon,
   MagnifyingGlassIcon,
-  BanknotesIcon,
-  Cog6ToothIcon,
-  LifebuoyIcon,
   ChatBubbleLeftRightIcon,
   AcademicCapIcon,
-  ClipboardDocumentListIcon,
   TrophyIcon,
   BellIcon,
   UsersIcon,
@@ -32,16 +23,18 @@ import {
   PlusCircleIcon,
   PencilSquareIcon,
   EyeIcon,
+  
 } from '@heroicons/react/24/outline';
 import {
   Table2Icon,
   ShieldCheckIcon,
-  BadgeDollarSignIcon,
   Settings2Icon,
   LogOut as LogoutIcon,
   GraduationCap,
   Users,
   MessageSquare,
+  Settings,
+  Telescope
 } from 'lucide-react';
 
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,18 +45,30 @@ const cn = (...inputs) => twMerge(clsx(inputs));
 
 export const SidebarContext = React.createContext();
 
+
+
 const Sidebar = ({ children }) => {
   const dispatch = useDispatch();
-  const { data = [], loading = false, error, students } = useSelector(state => state.mee || {});
-  console.log(data);
+  const { data = [], loading = false } = useSelector(state => state.mee || {});
+  const { data: settingdata } = useSelector((state) => state.setting);
+
   
   useEffect(() => {
     if (loading) return;
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       dispatch(getdata());
     }
-  }, [dispatch]);
+  }, [dispatch, loading, data]);
 
+    useEffect(() => {
+      // Fetch settings if they haven't been loaded yet (null/undefined)
+      if (settingdata === undefined || settingdata === null || settingdata.length === 0) {
+        dispatch(fetchSchoolSettings()).catch((err) => {
+          console.error('Error fetching settings:', err);
+        });
+      }
+    }, [dispatch, settingdata]);
+console.log(settingdata)
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -75,13 +80,12 @@ const Sidebar = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  
   /* ---------- helpers ---------- */
   const isMenuItemActive = (path) =>
     location.pathname === path ||
     (location.pathname.startsWith(path) && (path !== '/' || location.pathname === '/'));
 
-  const toggleCategory = (categoryId) =>
-    setExpandedCategory((prev) => (prev === categoryId ? null : categoryId));
 
 const menuCategories = useMemo(
   () => [
@@ -147,6 +151,33 @@ const menuCategories = useMemo(
       items: [
         { icon: PlusCircleIcon, label: 'Add New Achievements', to: '/Adminoutlet/Achievements' },
         { icon: PencilSquareIcon, label: 'Edit Achievements', to: '/Adminoutlet/DisplayAchievements' },
+      ],
+    },
+     {
+      id: 'Setting',
+      label: 'Setting',
+      icon: Settings2Icon,
+      items: [
+        { icon:Settings2Icon, label: ' Site Settings', to: '/Adminoutlet/Settings' },
+       
+      ],
+    },
+    {
+      id: 'Mission and Vision',
+      label: 'Mission and Vision',
+      icon: Telescope,
+      items: [
+        { icon:Telescope, label: ' Mission & Vision', to: '/Adminoutlet/MissionAndVision' },
+       
+      ],
+    },
+        {
+      id: 'Our Courses',
+      label: 'Our Courses',
+      icon: Telescope,
+      items: [
+        { icon:Telescope, label: ' Our Courses', to: '/Adminoutlet/Course' },
+
       ],
     },
   ],
@@ -250,7 +281,7 @@ const menuCategories = useMemo(
               <div className="flex">
                 <Link to="/" className="flex items-center space-x-2">
                   <HomeIcon className="h-4 w-4 text-blue-600" />
-                  <span className="text-blue-600">Admin Panel</span>
+                  <span className="text-blue-600">{settingdata?.schoolName || 'Admin Panel'} Admin Portal </span>
                 </Link>
               </div>
             </span>
@@ -371,9 +402,9 @@ const menuCategories = useMemo(
         >
           <Bars3Icon className="w-4 h-4" />
         </button>
-
         {/* profile dropdown */}
-        <div className="ml-auto relative mr-3" ref={dropdownRef}>
+        <div className="ml-auto relative mr-3 flex gap-5 " ref={dropdownRef}>
+          <div className='lg:pt-2 pt-1'>  <Link to="/Adminoutlet/settings"><Settings className='w-5 h-5 flex items-center hover:text-slate-400 text-gray-500 ml-auto relative mr-3'/> </Link></div>
           <button
             onClick={() => setIsProfileOpen((p) => !p)}
             className="flex items-center space-x-2 p-1 rounded-lg hover:bg-blue-50 transition-colors"

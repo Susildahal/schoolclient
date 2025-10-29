@@ -49,7 +49,9 @@ const Role = lazy(() => import("../../Schoolwebside/Admin/Role.jsx"));
 const AdminProfile = lazy(() => import("../../Schoolwebside/Admin/Profile.jsx"));
 const Testimonials = lazy(() => import("../../Schoolwebside/Admin/Testominal.jsx"));
 const AdminGallery = lazy(() => import("../../Schoolwebside/Admin/Gallery.jsx"));
-
+const Settings = lazy(() => import("../../Schoolwebside/Admin/Setting.jsx"));
+const MissionAndVision = lazy(() => import("../../Schoolwebside/Admin/Missionandvisson.jsx"));
+const Course = lazy(() => import("../../Schoolwebside/Admin/Course.jsx"));
 const AppRouter = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -97,6 +99,9 @@ const AppRouter = () => {
           <Route path="Profile" element={<Suspense fallback={<div><Spiner/></div>}><AdminProfile /></Suspense>} />
               <Route path="ShowTestimonials" element={<Suspense fallback={<div><Spiner/></div>}><Testimonials /></Suspense>} />
               <Route path="ShowGallery" element={<Suspense fallback={<div><Spiner/></div>}><AdminGallery /></Suspense>} />
+          <Route path="settings" element={<Suspense fallback={<div><Spiner/></div>}><Settings /></Suspense>} />
+          <Route path="MissionAndVision" element={<Suspense fallback={<div><Spiner/></div>}><MissionAndVision /></Suspense>} />
+          <Route path="Course" element={<Suspense fallback={<div><Spiner/></div>}><Course /></Suspense>} />
         </Route>
       </>
     )

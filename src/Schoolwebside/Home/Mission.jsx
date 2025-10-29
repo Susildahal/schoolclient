@@ -1,11 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { motion, useInView } from "framer-motion";
 import { Eye, Target, Heart, Sparkles, ChevronDown } from "lucide-react";
+import { fetchMVV } from "../redux/slicer/missionVisionValues";
 
 const Mission = () => {
+  const dispatch = useDispatch();
+  const { data, loading } = useSelector((state) => state.mvv);
   const [expandedCard, setExpandedCard] = useState(null);
 
-  const sections = [
+  // Fetch MVV data on component mount
+  useEffect(() => {
+    if (!data) {
+      dispatch(fetchMVV());
+    }
+  }, [dispatch, data]);
+
+  // Fetch MVV data on component mount
+  useEffect(() => {
+    if (!data) {
+      dispatch(fetchMVV());
+    }
+  }, [dispatch, data]);
+
+  // Default sections structure (fallback if no data from Firebase)
+  const defaultSections = [
     {
       id: "vision",
       title: "Vision",
@@ -55,6 +74,19 @@ const Mission = () => {
       ]
     }
   ];
+
+  // Merge Firebase data with default structure
+  const sections = defaultSections.map(section => {
+    if (data && data[section.id]) {
+      return {
+        ...section,
+        title: data[section.id].title || section.title,
+        description: data[section.id].description || section.description,
+        details: data[section.id].points || section.details
+      };
+    }
+    return section;
+  });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -130,6 +162,20 @@ const Mission = () => {
 
   return (
     <div className="relative bg-white py-16 lg:py-24 overflow-hidden">
+      {/* Loading State */}
+      {loading && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
+            />
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      )}
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
