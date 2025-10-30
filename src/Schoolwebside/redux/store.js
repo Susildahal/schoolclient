@@ -7,6 +7,7 @@ import meeSlice from "./slicer/mee.js";
 import testimonialSlice from "./slicer/testominal.js";
 import schoolReducer  from './slicer/setting.js'
 import mvvReducer from './slicer/missionVisionValues.js'
+import coursesReducer from './slicer/courses.js'
 
 
  const store = configureStore({
@@ -18,7 +19,8 @@ import mvvReducer from './slicer/missionVisionValues.js'
         mee: meeSlice,
         testimonial: testimonialSlice,
         setting:schoolReducer,
-        mvv: mvvReducer
+        mvv: mvvReducer,
+        courses: coursesReducer
     }
 });
 

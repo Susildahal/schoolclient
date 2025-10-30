@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {getdata,logoutMee} from "../redux/slicer/mee.js";
 import { fetchSchoolSettings } from '../redux/slicer/setting';
+import { fetchCourses } from '../redux/slicer/courses.js';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -51,7 +52,6 @@ const Sidebar = ({ children }) => {
   const dispatch = useDispatch();
   const { data = [], loading = false } = useSelector(state => state.mee || {});
   const { data: settingdata } = useSelector((state) => state.setting);
-
   
   useEffect(() => {
     if (loading) return;

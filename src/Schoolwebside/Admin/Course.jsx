@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Edit2, X, Save, Loader } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Plus, Trash2, Edit2, X, Save, Loader, AlertCircle, CheckCircle2, BookOpen } from 'lucide-react';
+import { fetchCourses, addCourse, updateCourse, deleteCourse, clearSuccess } from '../redux/slicer/courses';
 
 const AcademicProgramsCRUD = () => {
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { data: programs, loading, success, error } = useSelector((state) => state.courses);
+  
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -13,22 +17,20 @@ const AcademicProgramsCRUD = () => {
   });
   const [newSubject, setNewSubject] = useState('');
 
-  const [programs, setPrograms] = useState([
-    {
-      id: 1,
-      programName: 'Bachelor of Science in Computer Science',
-      description: 'Learn programming, web development, and software engineering',
-      details: '4 years, Full-time',
-      subjects: ['C++', 'Java', 'Python', 'Web Development', 'Database Management']
-    },
-    {
-      id: 2,
-      programName: 'Bachelor of Arts in English',
-      description: 'Study literature, writing, and communication skills',
-      details: '4 years, Full-time',
-      subjects: ['English Literature', 'Creative Writing', 'Grammar', 'Communication']
+  // Fetch courses on component mount
+  useEffect(() => {
+    dispatch(fetchCourses());
+  }, [dispatch]);
+
+  // Auto-dismiss success message
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        dispatch(clearSuccess());
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  ]);
+  }, [success, dispatch]);
 
   const resetForm = () => {
     setFormData({
@@ -86,37 +88,49 @@ const AcademicProgramsCRUD = () => {
       return;
     }
 
-    setLoading(true);
-    
     try {
       if (editingId) {
-        // Update
-        setPrograms(programs.map(p => p.id === editingId ? { ...formData, id: editingId } : p));
+        // Update existing course
+        await dispatch(updateCourse({ id: editingId, data: formData })).unwrap();
       } else {
-        // Create
-        const newProgram = {
-          ...formData,
-          id: Date.now()
-        };
-        setPrograms([...programs, newProgram]);
+        // Add new course
+        await dispatch(addCourse(formData)).unwrap();
       }
       handleCloseModal();
     } catch (error) {
       console.error('Error saving:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this program?')) {
-      setPrograms(programs.filter(p => p.id !== id));
+      try {
+        await dispatch(deleteCourse(id)).unwrap();
+      } catch (error) {
+        console.error('Error deleting:', error);
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
+            <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+            <span className="text-green-800 font-medium">Operation completed successfully!</span>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <span className="text-red-800 font-medium">{error}</span>
+          </div>
+        )}
+
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -135,7 +149,12 @@ const AcademicProgramsCRUD = () => {
         </div>
 
         {/* Programs Grid/Cards */}
-        {programs.length === 0 ? (
+        {loading && programs.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
+            <Loader size={48} className="animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading programs...</p>
+          </div>
+        ) : programs.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
             <div className="max-w-sm mx-auto">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -157,58 +176,73 @@ const AcademicProgramsCRUD = () => {
             {programs.map((program) => (
               <div
                 key={program.id}
-                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200 group"
+                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 group"
               >
-                {/* Card Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                      {program.programName}
-                    </h3>
-                    <p className="text-sm text-gray-500">{program.details}</p>
+                {/* Card Header with Icon */}
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                      <BookOpen className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 text-white">
+                      <h3 className="font-bold text-lg line-clamp-2">
+                        {program.programName}
+                      </h3>
+                    </div>
                   </div>
                 </div>
 
-                {/* Description */}
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {program.description}
-                </p>
-
-                {/* Subjects Tags */}
-                <div className="mb-5">
-                  <div className="flex flex-wrap gap-2">
-                    {program.subjects.slice(0, 3).map((subject, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium"
-                      >
-                        {subject}
-                      </span>
-                    ))}
-                    {program.subjects.length > 3 && (
-                      <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                        +{program.subjects.length - 3} more
-                      </span>
-                    )}
+                {/* Card Body */}
+                <div className="p-5">
+                  <div className="mb-3">
+                    <span className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold">
+                      {program.details}
+                    </span>
                   </div>
-                </div>
 
-                {/* Actions */}
-                <div className="flex gap-2 pt-4 border-t border-gray-100">
-                  <button
-                    onClick={() => handleOpenModal(program)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    <Edit2 size={16} />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(program.id)}
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3 min-h-[3.5rem]">
+                    {program.description}
+                  </p>
+
+                  {/* Subjects Section */}
+                  <div className="mb-4">
+                    <p className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
+                      Subjects ({program.subjects.length})
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {program.subjects.slice(0, 4).map((subject, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium"
+                        >
+                          {subject}
+                        </span>
+                      ))}
+                      {program.subjects.length > 4 && (
+                        <span className="inline-flex items-center px-2.5 py-1 bg-gray-200 text-gray-600 rounded-md text-xs font-semibold">
+                          +{program.subjects.length - 4}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-4 border-t border-gray-100">
+                    <button
+                      onClick={() => handleOpenModal(program)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      <Edit2 size={16} />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(program.id)}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -348,7 +382,7 @@ const AcademicProgramsCRUD = () => {
             </div>
 
             {/* Footer */}
-            <div className="flex gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div className="flex gap-3 px-6 py-4 border-t pb-5 border-gray-200 bg-gray-50">
               <button
                 onClick={handleCloseModal}
                 className="flex-1 px-5 py-2.5 border-2 border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors"

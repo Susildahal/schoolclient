@@ -11,8 +11,7 @@ const PublicRoute=lazy(() => import("./PublicRoutes.jsx"));
 
 // Public Pages
 const Home = lazy(() => import("../../Schoolwebside/Home/Home"));
-const Primary = lazy(() => import("../../Schoolwebside/Courses/Primary"));
-const Secondary = lazy(() => import("../../Schoolwebside/Courses/Secondary"));
+
 const Gallery = lazy(() => import("../../Schoolwebside/Gallery.jsx"));
 const Contactus = lazy(() => import("../../Schoolwebside/Home/Contactus.jsx"));
 const OurService = lazy(() => import("../../Schoolwebside/About US/OurService.jsx"));
@@ -25,7 +24,7 @@ const CheckEmail = lazy(() => import("../../Schoolwebside/Admin/CheckEmail.jsx")
 const PasswordForgetOtp = lazy(() => import("../../Schoolwebside/Admin/PasswordForgetOtp.jsx"));
 const Updatepassword = lazy(() => import("../../Schoolwebside/Admin/Updatepassword.jsx"));
 const Loginotp = lazy(() => import("../../Schoolwebside/Admin/Loginotp.jsx"));
-
+const CourseDetails = lazy(() => import("../../Schoolwebside/Courses/DescribeCourse.jsx"));
 
 // Admin Pages
 
@@ -65,8 +64,7 @@ const AppRouter = () => {
 
         <Route path="/" element={<Suspense fallback={<div><Spiner/></div>}><App /></Suspense>}>
           <Route index element={<Suspense fallback={<div><Spiner/></div>}><Home /></Suspense>} />
-          <Route path="Primary/" element={<Suspense fallback={<div><Spiner/></div>}><Primary /></Suspense>} />
-          <Route path="Secondary/" element={<Suspense fallback={<div><Spiner/></div>}><Secondary /></Suspense>} />
+        
           <Route path="Gallery/" element={<Suspense fallback={<div><Spiner/></div>}><Gallery /></Suspense>} />
           <Route path="Contactus/" element={<Suspense fallback={<div><Spiner/></div>}><Contactus /></Suspense>} />
           <Route path="OurService/" element={<Suspense fallback={<div><Spiner/></div>}><OurService /></Suspense>} />
@@ -74,7 +72,7 @@ const AppRouter = () => {
           <Route path="Student/" element={<Suspense fallback={<div><Spiner/></div>}><Student /></Suspense>} />
           <Route path="AboutAchievements/" element={<Suspense fallback={<div><Spiner/></div>}><AboutAchievements /></Suspense>} />
           <Route path="Aboutpublicnotic/" element={<Suspense fallback={<div><Spiner/></div>}><Aboutpublicnotic /></Suspense>} />
-         
+          <Route path="coursedetails/:id" element={<Suspense fallback={<div><Spiner/></div>}><CourseDetails /></Suspense>} />
         </Route>
 
         {/* Admin Routes */}

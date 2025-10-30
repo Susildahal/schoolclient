@@ -1,23 +1,28 @@
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import React, { useState, useEffect, useRef } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
-
+import { fetchCourses } from '../Schoolwebside/redux/slicer/courses.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation, useNavigate } from 'react-router-dom'; 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [currentPath, setCurrentPath] = useState("");
   const navRef = useRef(null);
   const { scrollY } = useScroll();
   const lastScrollY = useRef(0);
   const scrollTimeoutRef = useRef(null);
+  const dispatch = useDispatch();
+  const { data: courses } = useSelector((state) => state.courses);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentPath = location.pathname;
 
   useEffect(() => {
     setIsMenuOpen(false);
     setOpenDropdown(null);
-    setCurrentPath(window.location.pathname);
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -46,12 +51,29 @@ const Navbar = () => {
 
   const handleLogin = () => {
     const flag = localStorage.getItem("flag");
-    window.location.href = flag === "true" ? "/Adminoutlet/AdminHome" : "/login";
+    navigate(flag === "true" ? "/Adminoutlet/AdminHome" : "/login");
   };
 
   const toggleDropdown = (dropdownName) => {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
+
+   useEffect(() => {
+    // Fetch courses from server if not already in state
+    if (!courses || courses.length === 0) {
+      dispatch(fetchCourses());
+    }
+  }, [dispatch, courses]);
+
+
+
+  const courseSubItems = (courses && courses.length > 0)
+    ? courses.map((c) => ({
+        to: `/coursedetails/${c._id || c.id}`,
+        text: c.programName || c.name || "Untitled Course",
+        id: c._id || c.id,
+      }))
+    : [{ to: "/coursedetails", text: "Loading courses..." }];
 
   const navigationItems = [
     { to: "/", text: "Home" },
@@ -63,16 +85,12 @@ const Navbar = () => {
         { to: "/Student", text: "Students Details" },
         { to: "/AboutAchievements", text: "Our Achievements" },
         { to: "/Aboutpublicnotic", text: "Notices" },
-      ]
+      ],
     },
     {
       text: "Our Courses",
       key: "courses",
-      subItems: [
-        { to: "/Primary", text: "Primary" },
-        { to: "/Secondary", text: "Secondary" },
-        { to: "/technical", text: "Engineering" },
-      ]
+      subItems: courseSubItems,
     },
     { to: "/Gallery", text: "Our Gallery" },
     { to: "/Contactus", text: "Contact Us" },
@@ -116,6 +134,7 @@ const Navbar = () => {
                 transition={{ delay: 0.1 }}
               >
                 Bagh Bhairav
+                
               </motion.h1>
               <p className="text-xs text-gray-500 hidden lg:block">School of Excellence</p>
             </div>
@@ -131,21 +150,21 @@ const Navbar = () => {
                 transition={{ delay: index * 0.05 }}
               >
                 {item.to ? (
-                  <a
-                    href={item.to}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  <Link
+                    to={item.to}
+                    className={`px-4 py-2 capitalize rounded-lg text-sm font-medium transition-all duration-300 ${
                       currentPath === item.to
                         ? "text-blue-600 bg-blue-50/50 font-semibold"
                         : "text-gray-700 hover:text-blue-600 hover:bg-blue-50/50"
                     }`}
                   >
                     {item.text}
-                  </a>
+                  </Link>
                 ) : (
                   <>
                     <button
                       onClick={() => toggleDropdown(item.key)}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-300"
+                      className="flex items-center gap-1.5 px-4 py-2  capitalize rounded-lg text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50/50 transition-all duration-300"
                     >
                       {item.text}
                       <ChevronDown 
@@ -169,21 +188,24 @@ const Navbar = () => {
                     >
                       <div className="py-3">
                         {item.subItems?.map((subItem, subIndex) => (
-                          <motion.a
+                          <motion.div
                             key={subIndex}
-                            href={subItem.to}
-                            onClick={() => setOpenDropdown(null)}
                             initial={{ opacity: 0, x: -8 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: subIndex * 0.05 }}
-                            className={`block px-4 py-2.5 text-sm transition-all duration-200 hover:pl-5 hover:translate-x-0.5 rounded ${
-                              currentPath === subItem.to
-                                ? "text-blue-600 bg-blue-50/60 font-semibold"
-                                : "text-gray-700 hover:text-blue-600 hover:bg-blue-50/60"
-                            }`}
                           >
-                            {subItem.text}
-                          </motion.a>
+                            <Link
+                              to={subItem.to}
+                              onClick={() => setOpenDropdown(null)}
+                              className={`block px-4 py-2.5 text-sm  capitalize transition-all duration-200 hover:pl-5 hover:translate-x-0.5 rounded ${
+                                currentPath === subItem.to
+                                  ? "text-blue-600 bg-blue-50/60 font-semibold"
+                                  : "text-gray-700 hover:text-blue-600 hover:bg-blue-50/60"
+                              }`}
+                            >
+                              {subItem.text}
+                            </Link>
+                          </motion.div>
                         ))}
                       </div>
                     </motion.div>
@@ -260,8 +282,8 @@ const Navbar = () => {
               transition={{ delay: isMenuOpen ? index * 0.06 : 0 }}
             >
               {item.to ? (
-                <a
-                  href={item.to}
+                <Link
+                  to={item.to}
                   onClick={() => setIsMenuOpen(false)}
                   className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 ${
                     currentPath === item.to
@@ -270,7 +292,7 @@ const Navbar = () => {
                   }`}
                 >
                   {item.text}
-                </a>
+                </Link>
               ) : (
                 <>
                   <button
@@ -297,20 +319,23 @@ const Navbar = () => {
                   >
                     <div className="py-2 space-y-1">
                       {item.subItems?.map((subItem, subIndex) => (
-                        <motion.a
+                        <motion.div
                           key={subIndex}
-                          href={subItem.to}
-                          onClick={() => {
-                            setIsMenuOpen(false);
-                            setOpenDropdown(null);
-                          }}
                           initial={false}
                           animate={openDropdown === item.key ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
                           transition={{ delay: openDropdown === item.key ? subIndex * 0.05 : 0 }}
-                          className="block px-4 py-2.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-200/50 rounded-lg transition-all duration-300"
                         >
-                          {subItem.text}
-                        </motion.a>
+                          <Link
+                            to={subItem.to}
+                            onClick={() => {
+                              setIsMenuOpen(false);
+                              setOpenDropdown(null);
+                            }}
+                            className="block px-4 py-2.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-200/50 rounded-lg transition-all duration-300"
+                          >
+                            {subItem.text}
+                          </Link>
+                        </motion.div>
                       ))}
                     </div>
                   </motion.div>
