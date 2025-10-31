@@ -1,6 +1,6 @@
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll, AnimatePresence } from "framer-motion";
 import React, { useState, useEffect, useRef } from "react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Sparkles, GraduationCap, Home, Info, BookOpen, Image, Mail, User, Search, Bell, Phone } from "lucide-react";
 import { fetchCourses } from '../Schoolwebside/redux/slicer/courses.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom'; 
@@ -9,6 +9,7 @@ const Navbar = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navRef = useRef(null);
   const { scrollY } = useScroll();
   const lastScrollY = useRef(0);
@@ -18,6 +19,15 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+
+  // Track mouse position for interactive effects
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -76,24 +86,26 @@ const Navbar = () => {
     : [{ to: "/coursedetails", text: "Loading courses..." }];
 
   const navigationItems = [
-    { to: "/", text: "Home" },
+    { to: "/", text: "Home", icon: Home },
     {
       text: "About Us",
       key: "about",
+      icon: Info,
       subItems: [
-        { to: "/OurService", text: "Services" },
-        { to: "/Student", text: "Students Details" },
-        { to: "/AboutAchievements", text: "Our Achievements" },
-        { to: "/Aboutpublicnotic", text: "Notices" },
+        { to: "/OurService", text: "Services", icon: Sparkles },
+        { to: "/Student", text: "Students Details", icon: User },
+        { to: "/AboutAchievements", text: "Our Achievements", icon: GraduationCap },
+        { to: "/Aboutpublicnotic", text: "Notices", icon: BookOpen },
       ],
     },
     {
       text: "Our Courses",
       key: "courses",
-      subItems: courseSubItems,
+      icon: BookOpen,
+      subItems: courseSubItems.map(item => ({ ...item, icon: GraduationCap })),
     },
-    { to: "/Gallery", text: "Our Gallery" },
-    { to: "/Contactus", text: "Contact Us" },
+    { to: "/Gallery", text: "Our Gallery", icon: Image },
+    { to: "/Contactus", text: "Contact Us", icon: Mail },
   ];
 
   return (
@@ -105,7 +117,7 @@ const Navbar = () => {
           visible: { y: 0, opacity: 1 },
         }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
-        className={`fixed top-3 left-0 right-0 mx-auto z-50 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl sm:rounded-full transition-all duration-300 ${
+        className={`fixed top-1 left-0 right-0 mx-auto z-50 px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl sm:rounded-full transition-all duration-300 ${
           isScrolled
             ? "bg-white/80 backdrop-blur-xl shadow-lg border border-white/50"
             : "bg-white/70 backdrop-blur-md shadow-md border border-white/40"

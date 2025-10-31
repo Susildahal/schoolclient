@@ -60,146 +60,257 @@ const ArtHeroSection = () => {
 
   return (
     <div className="relative h-screen bg-white overflow-hidden">
-      {/* Interactive Background Boxes */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        {/* Box 1 - Top Left - Follows mouse */}
+      {/* Spotlight Beams from Mouse Position */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-[1]"
+        style={{
+          background: `
+            radial-gradient(circle 400px at ${mousePos.x}px ${mousePos.y}px, rgba(59, 130, 246, 0.04), transparent 70%),
+            radial-gradient(circle 600px at ${mousePos.x}px ${mousePos.y}px, rgba(59, 130, 246, 0.02), transparent 80%)
+          `,
+          transition: 'background 0.2s ease-out'
+        }}
+      />
+
+      {/* Light Beams emanating from mouse */}
+      <div className="absolute inset-0 pointer-events-none z-[1] opacity-20">
+        <div 
+          className="absolute h-[200%] w-1 bg-gradient-to-b from-transparent via-blue-500/10 to-transparent"
+          style={{
+            left: `${mousePos.x}px`,
+            top: '-50%',
+            transform: 'translateX(-50%)',
+            filter: 'blur(1px)',
+            transition: 'left 0.15s ease-out'
+          }}
+        />
+        <div 
+          className="absolute w-[200%] h-1 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"
+          style={{
+            top: `${mousePos.y}px`,
+            left: '-50%',
+            transform: 'translateY(-50%)',
+            filter: 'blur(1px)',
+            transition: 'top 0.15s ease-out'
+          }}
+        />
+      </div>
+
+      {/* Background Grid Pattern */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:64px_64px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#d1d5db_1px,transparent_1px),linear-gradient(to_bottom,#d1d5db_1px,transparent_1px)] bg-[size:16px_16px] opacity-30" />
+      </div>
+
+      {/* Subtle Background Boxes - Grid Style */}
+      <div className="absolute inset-0 pointer-events-none z-[2]">
+        {/* Top Row Boxes */}
+        <motion.div
+          animate={{
+            x: mousePos.x * 0.015,
+            y: mousePos.y * 0.015,
+          }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 50, 
+            damping: 20 
+          }}
+          className="absolute top-20 left-[10%] w-40 h-40 border border-gray-200 rounded-lg"
+          style={{
+            background: 'rgba(255,255,255,0.5)',
+            backdropFilter: 'blur(2px)',
+          }}
+        >
+          {/* Spotlight beam on box */}
+          <div 
+            className="absolute inset-0 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-500"
+            style={{
+              background: `radial-gradient(circle at center, rgba(59, 130, 246, 0.08), transparent 70%)`
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          animate={{
+            x: -mousePos.x * 0.012,
+            y: mousePos.y * 0.01,
+          }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 45, 
+            damping: 22 
+          }}
+          className="absolute top-32 right-[15%] w-32 h-32 border border-gray-200 rounded-xl rotate-12"
+          style={{
+            background: 'rgba(255,255,255,0.5)',
+            backdropFilter: 'blur(2px)',
+          }}
+        >
+          <div 
+            className="absolute inset-0 rounded-xl"
+            style={{
+              background: `radial-gradient(circle at center, rgba(59, 130, 246, 0.05), transparent 80%)`
+            }}
+          />
+        </motion.div>
+
+        {/* Middle Row Boxes */}
+        <motion.div
+          animate={{
+            x: mousePos.x * 0.01,
+            y: -mousePos.y * 0.015,
+          }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 40, 
+            damping: 25 
+          }}
+          className="absolute top-1/3 left-[20%] w-48 h-48 border border-gray-200 rounded-2xl -rotate-6"
+          style={{
+            background: 'rgba(255,255,255,0.5)',
+            backdropFilter: 'blur(2px)',
+          }}
+        >
+          <div 
+            className="absolute inset-0 rounded-2xl"
+            style={{
+              background: `radial-gradient(circle at center, rgba(59, 130, 246, 0.06), transparent 75%)`
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          animate={{
+            x: -mousePos.x * 0.018,
+            y: mousePos.y * 0.012,
+          }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 55, 
+            damping: 20 
+          }}
+          className="absolute top-1/2 right-[12%] w-36 h-36 border border-gray-200 rounded-lg rotate-45"
+          style={{
+            background: 'rgba(255,255,255,0.5)',
+            backdropFilter: 'blur(2px)',
+          }}
+        >
+          <div 
+            className="absolute inset-0 rounded-lg"
+            style={{
+              background: `radial-gradient(circle at center, rgba(59, 130, 246, 0.04), transparent 70%)`
+            }}
+          />
+        </motion.div>
+
+        {/* Bottom Row Boxes */}
         <motion.div
           animate={{
             x: mousePos.x * 0.02,
-            y: mousePos.y * 0.02,
-            rotate: [0, 5, 0]
+            y: -mousePos.y * 0.02,
           }}
           transition={{ 
-            x: { type: "spring", stiffness: 50, damping: 20 },
-            y: { type: "spring", stiffness: 50, damping: 20 },
-            rotate: { duration: 4, repeat: Infinity }
+            type: "spring", 
+            stiffness: 60, 
+            damping: 18 
           }}
-          className="absolute top-20 left-10 w-32 h-32 md:w-48 md:h-48 opacity-20 rounded-2xl"
+          className="absolute bottom-32 left-[15%] w-44 h-44 border border-gray-200 rounded-xl rotate-12"
           style={{
-            background: `linear-gradient(135deg, ${slides[currentSlide].accentColor}60, ${slides[currentSlide].secondaryColor}40)`,
-            transform: 'rotate(15deg)'
+            background: 'rgba(255,255,255,0.5)',
+            backdropFilter: 'blur(2px)',
           }}
-        />
+        >
+          <div 
+            className="absolute inset-0 rounded-xl"
+            style={{
+              background: `radial-gradient(circle at center, rgba(59, 130, 246, 0.05), transparent 75%)`
+            }}
+          />
+        </motion.div>
 
-        {/* Box 2 - Top Right - Counter mouse */}
         <motion.div
           animate={{
-            x: -mousePos.x * 0.015,
-            y: mousePos.y * 0.015,
-            rotate: [0, -10, 0]
+            x: -mousePos.x * 0.014,
+            y: -mousePos.y * 0.018,
           }}
           transition={{ 
-            x: { type: "spring", stiffness: 40, damping: 20 },
-            y: { type: "spring", stiffness: 40, damping: 20 },
-            rotate: { duration: 5, repeat: Infinity }
+            type: "spring", 
+            stiffness: 48, 
+            damping: 24 
           }}
-          className="absolute top-32 right-16 w-24 h-24 md:w-40 md:h-40 opacity-15 rounded-3xl"
+          className="absolute bottom-24 right-[18%] w-40 h-40 border border-gray-200 rounded-2xl -rotate-12"
           style={{
-            background: `linear-gradient(45deg, ${slides[currentSlide].secondaryColor}50, ${slides[currentSlide].accentColor}30)`,
-            transform: 'rotate(-20deg)'
+            background: 'rgba(255,255,255,0.5)',
+            backdropFilter: 'blur(2px)',
           }}
-        />
+        >
+          <div 
+            className="absolute inset-0 rounded-2xl"
+            style={{
+              background: `radial-gradient(circle at center, rgba(59, 130, 246, 0.06), transparent 80%)`
+            }}
+          />
+        </motion.div>
 
-        {/* Box 3 - Bottom Left - Circular motion */}
+        {/* Additional Small Accent Boxes */}
         <motion.div
           animate={{
-            x: [0, mousePos.x * 0.01, 0],
-            y: [0, -mousePos.y * 0.01, 0],
-            rotate: 360
+            x: mousePos.x * 0.025,
+            y: mousePos.y * 0.022,
           }}
           transition={{ 
-            x: { duration: 6, repeat: Infinity },
-            y: { duration: 6, repeat: Infinity },
-            rotate: { duration: 20, repeat: Infinity, ease: "linear" }
+            type: "spring", 
+            stiffness: 70, 
+            damping: 15 
           }}
-          className="absolute bottom-32 left-20 w-36 h-36 md:w-52 md:h-52 opacity-10 rounded-xl"
+          className="absolute top-[15%] left-[35%] w-24 h-24 border border-gray-200 rounded-lg rotate-45"
           style={{
-            background: `linear-gradient(225deg, ${slides[currentSlide].accentColor}40, ${slides[currentSlide].lightColor}60)`,
-            transform: 'rotate(45deg)'
+            background: 'rgba(255,255,255,0.4)',
+            backdropFilter: 'blur(1px)',
           }}
         />
 
-        {/* Box 4 - Bottom Right - Inverse mouse */}
-        <motion.div
-          animate={{
-            x: -mousePos.x * 0.025,
-            y: -mousePos.y * 0.025,
-            rotate: [0, 15, 0]
-          }}
-          transition={{ 
-            x: { type: "spring", stiffness: 60, damping: 25 },
-            y: { type: "spring", stiffness: 60, damping: 25 },
-            rotate: { duration: 3, repeat: Infinity }
-          }}
-          className="absolute bottom-20 right-10 w-28 h-28 md:w-44 md:h-44 opacity-25 rounded-2xl"
-          style={{
-            background: `linear-gradient(315deg, ${slides[currentSlide].secondaryColor}50, ${slides[currentSlide].accentColor}30)`,
-            transform: 'rotate(-10deg)'
-          }}
-        />
-
-        {/* Box 5 - Center - Subtle pulse */}
-        <motion.div
-          animate={{
-            x: mousePos.x * 0.008,
-            y: mousePos.y * 0.008,
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ 
-            x: { type: "spring", stiffness: 30, damping: 20 },
-            y: { type: "spring", stiffness: 30, damping: 20 },
-            scale: { duration: 8, repeat: Infinity }
-          }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 opacity-5 rounded-full blur-3xl"
-          style={{
-            background: `radial-gradient(circle, ${slides[currentSlide].accentColor}30, transparent)`,
-          }}
-        />
-
-        {/* Box 6 - Small accent top */}
-        <motion.div
-          animate={{
-            x: mousePos.x * 0.03,
-            y: mousePos.y * 0.02,
-            rotate: -360
-          }}
-          transition={{ 
-            x: { type: "spring", stiffness: 70, damping: 15 },
-            y: { type: "spring", stiffness: 70, damping: 15 },
-            rotate: { duration: 15, repeat: Infinity, ease: "linear" }
-          }}
-          className="absolute top-10 left-1/3 w-16 h-16 md:w-24 md:h-24 opacity-20"
-          style={{
-            background: slides[currentSlide].secondaryColor,
-            clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
-          }}
-        />
-
-        {/* Box 7 - Small accent bottom */}
         <motion.div
           animate={{
             x: -mousePos.x * 0.02,
-            y: -mousePos.y * 0.03,
-            rotate: 360
+            y: -mousePos.y * 0.025,
           }}
           transition={{ 
-            x: { type: "spring", stiffness: 50, damping: 18 },
-            y: { type: "spring", stiffness: 50, damping: 18 },
-            rotate: { duration: 12, repeat: Infinity, ease: "linear" }
+            type: "spring", 
+            stiffness: 65, 
+            damping: 17 
           }}
-          className="absolute bottom-40 right-1/4 w-20 h-20 md:w-32 md:h-32 opacity-15 rounded-full"
+          className="absolute bottom-[20%] left-[40%] w-28 h-28 border border-gray-200 rounded-xl -rotate-30"
           style={{
-            background: `linear-gradient(180deg, ${slides[currentSlide].accentColor}50, ${slides[currentSlide].secondaryColor}30)`,
+            background: 'rgba(255,255,255,0.4)',
+            backdropFilter: 'blur(1px)',
+          }}
+        />
+
+        <motion.div
+          animate={{
+            x: mousePos.x * 0.016,
+            y: -mousePos.y * 0.02,
+          }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 58, 
+            damping: 19 
+          }}
+          className="absolute top-[40%] right-[25%] w-32 h-32 border border-gray-200 rounded-2xl rotate-15"
+          style={{
+            background: 'rgba(255,255,255,0.4)',
+            backdropFilter: 'blur(1px)',
           }}
         />
       </div>
 
       {/* Animated Grid Background */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
+      <div className="absolute inset-0 opacity-5 pointer-events-none z-0">
         <svg width="100%" height="100%">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke={slides[currentSlide].accentColor} strokeWidth="1"/>
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(156, 163, 175, 0.3)" strokeWidth="1"/>
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
@@ -207,7 +318,7 @@ const ArtHeroSection = () => {
       </div>
 
       {/* Main Hero Container - 100vh */}
-      <div className="relative h-full flex items-center z-10">
+      <div className="relative h-full flex items-center z-20">
         {/* Content Grid */}
         <div className="w-full px-4 sm:px-6 lg:px-12 py-20">
           <div className="max-w-7xl mx-auto">
@@ -226,7 +337,7 @@ const ArtHeroSection = () => {
                 <motion.div 
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}
-                  className="inline-flex items-center space-x-3 px-5 py-3 border-2 w-fit rounded-full"
+                  className="inline-flex items-center space-x-3 px-5 py-3 border-2 w-fit rounded-full bg-white/80 backdrop-blur-sm"
                   style={{ borderColor: slides[currentSlide].accentColor }}
                 >
                   <motion.div 

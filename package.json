@@ -29,9 +29,11 @@
     "react-router-dom": "^6.30.0",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.6",
+    "react-tsparticles": "^2.12.2",
     "recharts": "^3.1.2",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
+    "tsparticles": "^3.9.1",
     "web-vitals": "^2.1.4",
     "yup": "^1.4.0"
   },

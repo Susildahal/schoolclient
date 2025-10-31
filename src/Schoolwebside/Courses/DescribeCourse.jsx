@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, ArrowLeft, Loader, CheckCircle2, BookMarked } from 'lucide-react';
 import { fetchCourses } from '../redux/slicer/courses';
+import Banner from '../../Schoolwebside/common/Banner';
 
 function DescribeCourse() {
   const { id } = useParams(); // Get course ID from URL
@@ -60,6 +61,12 @@ function DescribeCourse() {
   }
 
   return (
+    <>
+    <Banner  
+      title={'Course '}
+      subtitle={"Comprehensive program designed for academic excellence"}
+      badge="📚 Course Details"
+    />
     <div className="min-h-screen bg-gray-50">
       {/* Back Button */}
 
@@ -154,6 +161,7 @@ function DescribeCourse() {
         {/* Other Courses Section - Blog Style */}
         {otherCourses.length > 0 && (
           <div>
+     
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Explore Other Programs
@@ -213,6 +221,7 @@ function DescribeCourse() {
         )}
       </div>
     </div>
+    </>
   );
 }
 
