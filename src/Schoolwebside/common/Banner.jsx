@@ -237,7 +237,7 @@ export default function AboutBanner({ title, subtitle, badge  }) {
           height: '300px',
           boxShadow: particleEnergy > 0.2 ? '0 0 40px rgba(100, 180, 255, 0.4)' : '0 10px 30px rgba(0, 0, 0, 0.2)',
           cursor: 'auto',
-          borderBottomRightRadius: '10rem'
+        
         }}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={handleMouseLeave}
